@@ -9,6 +9,7 @@ import sys
 # uhmm importing spaCy so we can tokenize and lemmatize instead of using nltk
 print('loading the spacy model')
 nlp = spacy.load("en_core_web_sm")
+nlp.max_length = 10000000
 print('spacy model was loaded :)')
 
 class SearchEngine:
