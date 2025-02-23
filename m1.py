@@ -7,7 +7,9 @@ from collections import defaultdict
 
 # fuk nltk we're using spacy due to loading issues
 # uhmm importing spaCy so we can tokenize and lemmatize instead of using nltk
+print('loading the spacy model')
 nlp = spacy.load("en_core_web_sm")
+print('spacy model was loaded :)')
 
 class SearchEngine:
     # imma set up the basic stuff here like the index, doc frequency, and file names
@@ -40,6 +42,8 @@ class SearchEngine:
             if os.path.isdir(domain_path):
                 for filename in os.listdir(domain_path):
                     file_path = os.path.join(domain_path, filename)
+
+                    print(f"processing file: {file_path}")
                     with open(file_path, 'r', encoding='utf-8') as file:
                         data = json.load(file)
                         words = self.parse_html(data['content'])
