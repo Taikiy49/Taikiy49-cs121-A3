@@ -19,7 +19,6 @@ class SearchEngine:
         self.index_file = "inverted_index.json"
 
     def parse_html(self, html_content):
-        """Extract text from HTML content and treat headings and bold text as important."""
         soup = BeautifulSoup(html_content, 'html.parser')
         important_tags = ['title', 'h1', 'h2', 'h3', 'b', 'strong']
         
@@ -33,7 +32,6 @@ class SearchEngine:
         return words
 
     def build_index(self):
-        """Creates the inverted index from the dataset."""
         for domain in os.listdir(self.dataset_path):
             domain_path = os.path.join(self.dataset_path, domain)
             if os.path.isdir(domain_path):
@@ -60,7 +58,6 @@ class SearchEngine:
         self.save_index()
 
     def save_index(self):
-        """Saves the inverted index to a JSON file."""
         with open(self.index_file, 'w', encoding='utf-8') as file:
             json.dump({
                 'index': {key: val for key, val in self.inverted_index.items()},
@@ -69,7 +66,6 @@ class SearchEngine:
             }, file)
 
     def load_index(self):
-        """Loads the inverted index from a JSON file if it exists."""
         if os.path.exists(self.index_file):
             with open(self.index_file, 'r', encoding='utf-8') as file:
                 data = json.load(file)
@@ -80,7 +76,6 @@ class SearchEngine:
             print("No index file found. Please run build_index() first.")
 
     def tf_idf(self, term, doc_id):
-        """Computes the TF-IDF score for a term in a document."""
         postings = dict(self.inverted_index.get(term, []))
         tf = postings.get(doc_id, 0)
         if tf == 0:
@@ -89,7 +84,6 @@ class SearchEngine:
         return tf * idf
 
     def search(self, query):
-        """Searches for documents matching the query using boolean AND with TF-IDF ranking."""
         query_terms = [self.stemmer.stem(word) for word in word_tokenize(query.lower())]
         doc_scores = defaultdict(float)
         doc_sets = []
@@ -98,10 +92,8 @@ class SearchEngine:
             docs = set(doc_id for doc_id, _ in self.inverted_index.get(term, []))
             doc_sets.append(docs)
 
-        # Find common documents containing all query terms (boolean AND)
         common_docs = set.intersection(*doc_sets) if doc_sets else set()
 
-        # Rank the common documents using TF-IDF
         for doc_id in common_docs:
             for term in query_terms:
                 doc_scores[doc_id] += self.tf_idf(term, doc_id)
