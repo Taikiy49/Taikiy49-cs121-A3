@@ -1,36 +1,39 @@
 import os
 import json
 import math
-import nltk
+import spacy
 from bs4 import BeautifulSoup
 from collections import defaultdict
-from nltk.tokenize import word_tokenize
-from nltk.stem import PorterStemmer
 
-nltk.download('punkt')
+# fuk nltk we're using spacy due to loading issues
+# uhmm importing spaCy so we can tokenize and lemmatize instead of using nltk
+nlp = spacy.load("en_core_web_sm")
 
 class SearchEngine:
+    # imma set up the basic stuff here like the index, doc frequency, and file names
     def __init__(self, dataset_path):
         self.dataset_path = dataset_path
         self.inverted_index = defaultdict(list)
         self.doc_freq = defaultdict(int)
         self.total_docs = 0
-        self.stemmer = PorterStemmer()
         self.index_file = "inverted_index.json"
 
+    # parsing the HTML and trying to grab important words like titles and headings
     def parse_html(self, html_content):
         soup = BeautifulSoup(html_content, 'html.parser')
         important_tags = ['title', 'h1', 'h2', 'h3', 'b', 'strong']
-        
+
         words = []
         for tag in important_tags:
             for element in soup.find_all(tag):
-                words.extend(word_tokenize(element.get_text().lower()))
+                # uhmm extracting the text and tokenizing + lemmatizing with spaCy
+                words.extend([token.lemma_.lower() for token in nlp(element.get_text()) if token.is_alpha])
 
-        # Add regular text
-        words.extend(word_tokenize(soup.get_text().lower()))
+        # gonna add the rest of the text from the page too
+        words.extend([token.lemma_.lower() for token in nlp(soup.get_text()) if token.is_alpha])
         return words
 
+    # imma loop through all files in the dataset and build the inverted index
     def build_index(self):
         for domain in os.listdir(self.dataset_path):
             domain_path = os.path.join(self.dataset_path, domain)
@@ -41,22 +44,23 @@ class SearchEngine:
                         data = json.load(file)
                         words = self.parse_html(data['content'])
                         doc_id = data['url']
-                        
-                        # Stemming and word frequency count
+
+                        # gonna count term frequencies so we can do tf-idf later
                         word_freq = defaultdict(int)
                         for word in words:
-                            stemmed_word = self.stemmer.stem(word)
-                            word_freq[stemmed_word] += 1
-                        
-                        # Add to inverted index
+                            word_freq[word] += 1
+
+                        # okay now storing this in the inverted index
                         for word, freq in word_freq.items():
                             self.inverted_index[word].append((doc_id, freq))
                             self.doc_freq[word] += 1
                         
                         self.total_docs += 1
         
+        # uhmm saving the index so we don't have to do this every time
         self.save_index()
 
+    # imma save the index to a JSON file
     def save_index(self):
         with open(self.index_file, 'w', encoding='utf-8') as file:
             json.dump({
@@ -65,6 +69,7 @@ class SearchEngine:
                 'total_docs': self.total_docs
             }, file)
 
+    # this function loads the index from a file so we don’t have to rebuild it
     def load_index(self):
         if os.path.exists(self.index_file):
             with open(self.index_file, 'r', encoding='utf-8') as file:
@@ -75,6 +80,7 @@ class SearchEngine:
         else:
             print("No index file found. Please run build_index() first.")
 
+    # imma do the tf-idf calculation here for ranking later
     def tf_idf(self, term, doc_id):
         postings = dict(self.inverted_index.get(term, []))
         tf = postings.get(doc_id, 0)
@@ -83,8 +89,10 @@ class SearchEngine:
         idf = math.log((self.total_docs + 1) / (self.doc_freq.get(term, 1) + 1)) + 1
         return tf * idf
 
+    # okay now we do the actual searching
     def search(self, query):
-        query_terms = [self.stemmer.stem(word) for word in word_tokenize(query.lower())]
+        # imma process the query just like we did for indexing
+        query_terms = [token.lemma_.lower() for token in nlp(query) if token.is_alpha]
         doc_scores = defaultdict(float)
         doc_sets = []
 
@@ -92,22 +100,24 @@ class SearchEngine:
             docs = set(doc_id for doc_id, _ in self.inverted_index.get(term, []))
             doc_sets.append(docs)
 
+        # uhmm only return documents that have **all** the query terms (boolean AND)
         common_docs = set.intersection(*doc_sets) if doc_sets else set()
 
+        # okay now let's rank the results using tf-idf
         for doc_id in common_docs:
             for term in query_terms:
                 doc_scores[doc_id] += self.tf_idf(term, doc_id)
 
         ranked_docs = sorted(doc_scores.items(), key=lambda x: x[1], reverse=True)
-        return ranked_docs[:5]  # Return top 5 results
+        return ranked_docs[:5]  # this will return the top 5 results
 
-# this is my tests for now
-dataset_path = 'test-directory' # test directory is erroring right now
-search_engine = SearchEngine(dataset_path) # runn that
-search_engine.build_index()  
-search_engine.load_index()  
+# okay now let's test this
+dataset_path = 'test-directory'  # gonna make sure this directory actually exists
+search_engine = SearchEngine(dataset_path)  
+search_engine.build_index()  # gonna build the index first
+search_engine.load_index()   # now we load it
 
-query = "machine learning" # gonna first test it with machine learnign but we still have to test all the other ones later
+query = "machine learning"  # first test query, gotta test more later
 results = search_engine.search(query)
 
 print("the top 5 results are: ", results)
