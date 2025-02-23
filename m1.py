@@ -4,7 +4,7 @@ import math
 import spacy
 from bs4 import BeautifulSoup
 from collections import defaultdict
-
+import sys
 # fuk nltk we're using spacy due to loading issues
 # uhmm importing spaCy so we can tokenize and lemmatize instead of using nltk
 print('loading the spacy model')
@@ -123,5 +123,7 @@ search_engine.load_index()   # now we load it
 
 query = "machine learning"  # first test query, gotta test more later
 results = search_engine.search(query)
+file_size = sys.getsizeof('inverted_index.json')
 
 print("the top 5 results are: ", results)
+print("The size of the file is: ", file_size/1000)
