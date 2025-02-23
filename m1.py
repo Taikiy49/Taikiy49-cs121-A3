@@ -109,7 +109,7 @@ class SearchEngine:
         ranked_docs = sorted(doc_scores.items(), key=lambda x: x[1], reverse=True)
         return ranked_docs[:5]  # Return top 5 results
 
-# Usage Example
+# this is my tests for now
 dataset_path = 'test-directory' # test directory is erroring right now
 search_engine = SearchEngine(dataset_path) # runn that
 search_engine.build_index()  
