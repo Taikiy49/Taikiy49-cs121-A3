@@ -1,3 +1,0 @@
-﻿Total Number of Docs: 29861
-Number of Unique words: 136302
-The size of the file is:  441913.3017578125 KB
