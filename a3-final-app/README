@@ -1,0 +1,32 @@
+how i created the react app
+i had to clear the cache because i was running into some sort of issue creating the react app
+btw to connect our m2 to our frontend, we're gonna have to build another py file that with more imports to 
+to allow this to happen, we use python Flask
+
+
+# how we created our react app
+```
+npx clear-npx-cache 
+npx create-react-app a3-final
+npm install axios
+```
+ 
+to run the react app, make sure you have nodejs installed! IF U DONT HAVE THIS, UR PROGRAM WILL NOT RUN!
+for mac users you can use homebrew:
+``` 
+brew install node
+```
+for windows or mac users don't have homebrew you can download and install node.js from their website
+
+# HOW TO RUN THE PROGRAM
+make sure you have two separate terminals open
+make sure you are in the a3-final-app directory (cd into it if ur not)
+one terminal should run:
+```
+python3 a3.py
+```
+
+the other terminal should run:
+```
+npm start
+```
