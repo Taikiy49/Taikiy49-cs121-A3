@@ -1,0 +1,35 @@
+originally, when we tested queries like iftekhar ahmed, we would get something like this
+
+https://www.ics.uci.edu/~iftekha/ (Score: 560.5258)Summarize
+https://www.ics.uci.edu/~iftekha/#currentcourse (Score: 560.5258)Summarize
+https://www.informatics.uci.edu/explore/faculty-profiles/iftekhar-ahmed/ (Score: 126.7821)Summarize
+https://www.informatics.uci.edu/explore/faculty-profiles/iftekhar-ahmed/#content (Score: 126.7821)Summarize
+https://www.ics.uci.edu/~iftekha/publication/on-the-limits-of-mutation-reduction-strategies/ (Score: 45.4480)Summarize
+
+where a lot of the links that we had obtained had the same content. the only difference between the links were that some of them had different fragments
+therefore, we had decided to normalize the links to address this issue.
+
+then, we noticed that we had the same issue with other links that had different links but the same exact content with the same exact ranking
+so instead, we have decided to look at each of the rankings, and only display the links if they have a different ranking from the previous.
+For example, if a link had a score of 126.7821 placed at top 3, then the next ranked link (top 4) should not have the same ranking as the previous (126.7821)
+
+now the links that we obtain from the queries on our search engine look nicer and more inclusive:
+QUERY: temple
+
+https://grape.ics.uci.edu/wiki/public/attachment/wiki/cs122b-2017-winter-project5/query_load.txt (Score: 50.5876)Summarize
+https://www.ics.uci.edu/~eppstein/pix/dencp/ShirleyTemple2.html (Score: 36.1340)Summarize
+https://www.ics.uci.edu/~eppstein/pix/bar/sf/index.html (Score: 28.9072)Summarize
+http://sli.ics.uci.edu/pmwiki/pmwiki.php?n=Ihler-Photos%2FJapan-Deva (Score: 21.6804)Summarize
+https://evoke.ics.uci.edu/viewing-the-world-through-technologys-eyes/ (Score: 14.4536)Summarize
+
+each with unique links and unique rankings
+
+QUERY: market
+
+https://www.ics.uci.edu/~dan/class/267P/datasets/calgary/book1 (Score: 87.6713)Summarize
+https://www.cs.uci.edu/ics-welcomes-nobel-laureate-alvin-roth-as-a-distinguished-speaker-june-7/ (Score: 75.9818)Summarize
+https://www.ics.uci.edu/~theory/269/070511.html (Score: 52.6028)Summarize
+http://sli.ics.uci.edu/Classes-2008F/Finance (Score: 46.7581)Summarize
+https://www.ics.uci.edu/~taylor/ICS221/papers/McIlroyComponents.txt (Score: 40.9133)Summarize
+
+again, each of the links are unique and contain different rankings :D!
