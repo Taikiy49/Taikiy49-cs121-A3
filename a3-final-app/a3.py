@@ -8,6 +8,14 @@ import requests
 from collections import defaultdict
 from bs4 import BeautifulSoup
 import google.generativeai as genai
+from urllib.parse import urlparse
+
+
+
+def normalize_url(url):
+    parsed_url = urlparse(url)
+    return f"{parsed_url.scheme}://{parsed_url.netloc}{parsed_url.path}"
+
 
 # Load spaCy model
 print("Loading the spaCy model...")
@@ -59,8 +67,28 @@ class SearchEngine:
             for term in query_terms:
                 doc_scores[doc_id] += self.tf_idf(term, doc_id)
 
+        # Sort results by score (highest first)
         ranked_docs = sorted(doc_scores.items(), key=lambda x: x[1], reverse=True)
-        return [{"url": doc_id, "score": score} for doc_id, score in ranked_docs[:5]]
+
+        # Filter out duplicate scores, ensuring only unique ranking scores
+        unique_rankings = {}
+        final_results = []
+
+        for doc_id, score in ranked_docs:
+            if score not in unique_rankings:
+                unique_rankings[score] = doc_id  # Store the first occurrence of this score
+                final_results.append({"url": doc_id, "score": score})
+            else:
+                # If the score already exists, keep looking for the next unique score
+                for next_doc_id, next_score in ranked_docs:
+                    if next_score not in unique_rankings:
+                        unique_rankings[next_score] = next_doc_id
+                        final_results.append({"url": next_doc_id, "score": next_score})
+                        break  # Stop once we find a new unique ranking
+
+        return final_results[:5]  # Return top 5 unique results
+
+
 
 search_engine = SearchEngine()
 
