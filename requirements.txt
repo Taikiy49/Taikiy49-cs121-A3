@@ -1,0 +1,7 @@
+Flask
+flask-cors
+requests
+spacy
+bs4
+google-generativeai
+google.generativeai
