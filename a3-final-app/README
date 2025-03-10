@@ -1,12 +1,21 @@
-cd into the a3-final-app directory and run...
-
+in the main directory, run...
 ```bash
 pip install -r requirements.txt
 python -m spacy download en_core_web_sm
 ```
 
+IF YOU NEED TO RECREATE THE INDEX FILE, RUN...
+```
+python m1.py
+```
+make sure inverted_index.json is in the a3-final-app directory. if its not, simply move it there
+
+ONCE THATS DONE:
+cd into the a3-final-app directory
 then run...
+
 ```bash
+cd a3-final-app
 python a3.py
 ```
 
