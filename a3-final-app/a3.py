@@ -7,21 +7,20 @@ import spacy
 import requests
 from collections import defaultdict
 from bs4 import BeautifulSoup
-from sumy.parsers.plaintext import PlaintextParser
-from sumy.nlp.tokenizers import Tokenizer
-from sumy.summarizers.lsa import LsaSummarizer
-from sumy.summarizers.luhn import LuhnSummarizer
-
-import nltk
-nltk.download('punkt')
+import google.generativeai as genai
 
 # Load spaCy model
 print("Loading the spaCy model...")
 nlp = spacy.load("en_core_web_sm")
 print("spaCy model loaded.")
 
+# Initialize Flask
 app = Flask(__name__)
 CORS(app)
+
+# Google Gemini AI API Key (Set your key here)
+GOOGLE_API_KEY = "AIzaSyCsaz0MN4twNH6g9m63Nr9pLZ9kt3weuVw"
+genai.configure(api_key=GOOGLE_API_KEY)
 
 class SearchEngine:
     def __init__(self):
@@ -75,11 +74,8 @@ def search():
     results = search_engine.search(query)
     return jsonify({"results": results})
 
-
-import re
-
-def summarize_url(url):
-    """Fetch and summarize the content of a webpage without using sumy."""
+def summarize_url_with_gemini(url):
+    """Fetch and summarize content using Gemini AI."""
     try:
         response = requests.get(url, timeout=5)
         response.raise_for_status()
@@ -88,18 +84,20 @@ def summarize_url(url):
         # Extract paragraphs and clean text
         paragraphs = soup.find_all("p")
         text = " ".join(p.get_text() for p in paragraphs)
-        text = re.sub(r'\s+', ' ', text)  # Remove extra spaces
 
-        # Split into sentences
-        sentences = text.split('. ')
-        summary = ". ".join(sentences[:3])  # Take the first 3 sentences
+        if len(text) < 50:
+            return "No relevant content found for summarization."
 
-        return summary if summary else "No relevant summary available."
+        # Send text to Gemini AI for summarization
+
+        model = genai.GenerativeModel("gemini-1.5-flash")
+        response = model.generate_content(f"Summarize the following text: {text}")
+        summary = response.text.strip()
+
+        return summary if summary else "Summary could not be generated."
     except Exception as e:
         return f"Error summarizing content: {str(e)}"
 
-
-    
 @app.route("/summarize", methods=["POST"])
 def summarize():
     data = request.json
@@ -107,10 +105,10 @@ def summarize():
     if not url:
         return jsonify({"error": "URL cannot be empty."}), 400
 
-    summary = summarize_url(url)
+    summary = summarize_url_with_gemini(url)
     return jsonify({"summary": summary})
 
 if __name__ == "__main__":
     import multiprocessing
-    multiprocessing.freeze_support()  # Prevents pickle issues
+    multiprocessing.freeze_support()  
     app.run(debug=True, port=5000)
