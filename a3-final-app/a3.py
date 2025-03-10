@@ -111,4 +111,4 @@ def summarize():
 if __name__ == "__main__":
     import multiprocessing
     multiprocessing.freeze_support()  
-    app.run(debug=True, port=5000)
+    app.run(debug=False, port=5000)

@@ -10,9 +10,19 @@ then run...
 python a3.py
 ```
 
-then open a separate terminal, cd into the a3-final-app directory and run... (make sure both the py file and the react app is running at the same time for this to work)
+MAKE SURE YOU HAVE NODEJS INSTALLED, if not you can download it on: https://nodejs.org/en
+you can check your versions by running:
 ```bash
+npm -v
+node -v
+```
+
+then open a separate terminal, cd into the a3-final-app directory and run... (make sure both the py file and the react app is running at the same time for this to work)
+TO AVOID ENCOUNTERING ANY ERRORS run these methods
+```bash
+rm -rf node_modules package-lock.json
 npm install
+npm install axios
 npm start
 ```
 
